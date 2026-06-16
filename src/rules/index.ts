@@ -33,6 +33,24 @@ export function isProbablyBinary(content: string): boolean {
   return content.includes('\x00');
 }
 
+// 계산: NEXT_PUBLIC_ 경고가 덮는 값에 대한 범용 entropy 에러를 제거한다.
+// (NEXT_PUBLIC_은 의도적 노출일 수 있어 warn으로 처리하므로, 같은 값을
+//  generic entropy가 다시 error로 올리지 않는다. 단 known-pattern 에러는 유지.)
+function suppressEntropyUnderNextPublic(findings: Finding[]): Finding[] {
+  const nextPublic = findings.filter((f) => f.ruleId === 'next-public');
+  if (nextPublic.length === 0) return findings;
+  return findings.filter((f) => {
+    if (f.ruleId !== 'entropy') return true;
+    return !nextPublic.some(
+      (np) =>
+        np.line === f.line &&
+        !!f.match &&
+        !!np.match &&
+        (f.match.includes(np.match) || np.match.includes(f.match)),
+    );
+  });
+}
+
 export function scanFile(filePath: string, content: string, config: Config): Finding[] {
   const findings: Finding[] = [];
 
@@ -50,5 +68,5 @@ export function scanFile(filePath: string, content: string, config: Config): Fin
     findings.push(...checkNextPublic(input));
   }
 
-  return findings;
+  return suppressEntropyUnderNextPublic(findings);
 }

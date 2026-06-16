@@ -34,3 +34,17 @@ test('watch 파일은 합성 결과에 포함', () => {
   const f = scanFile('secrets.ts', 'x', cfg);
   assert.ok(f.some((x) => x.ruleId === 'watch'));
 });
+
+test('NEXT_PUBLIC_ 값은 범용 entropy 에러로 중복 보고되지 않는다 (warn만 유지)', () => {
+  const content = 'NEXT_PUBLIC_K=aB3xK9pQ7zR2mN5wT8uV1cD4';
+  const f = scanFile('app.ts', content, DEFAULT_CONFIG);
+  assert.equal(f.filter((x) => x.ruleId === 'entropy').length, 0);
+  assert.equal(f.filter((x) => x.ruleId === 'next-public' && x.severity === 'warn').length, 1);
+  assert.equal(f.filter((x) => x.severity === 'error').length, 0);
+});
+
+test('NEXT_PUBLIC_ 안의 알려진 패턴(AWS 키)은 여전히 error', () => {
+  const content = 'NEXT_PUBLIC_AWS=AKIAIOSFODNN7EXAMPLE';
+  const f = scanFile('app.ts', content, DEFAULT_CONFIG);
+  assert.ok(f.some((x) => x.ruleId === 'pattern:aws-access-key' && x.severity === 'error'));
+});
