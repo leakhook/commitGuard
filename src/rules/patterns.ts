@@ -18,7 +18,9 @@ const PATTERN_RULES: PatternRule[] = [
 ];
 
 // 엔트로피 검사 대상 토큰 추출용: 따옴표/할당 우변의 긴 토큰.
-const TOKEN_REGEX = /[A-Za-z0-9+/=_\-]{20,}/g;
+// '='는 제외한다 — 포함하면 `key=value`의 `key=`가 값에 붙어 한 토큰이 되어
+// 이미 패턴으로 잡힌 시크릿과 dedup이 어긋나고 마스킹 출력도 지저분해진다.
+const TOKEN_REGEX = /[A-Za-z0-9+/_\-]{20,}/g;
 
 function pattern(file: string, line: number, label: string, ruleId: string, match: string): Finding {
   return {
@@ -52,8 +54,10 @@ export function checkPatterns(input: RuleInput): Finding[] {
     let t: RegExpExecArray | null;
     while ((t = TOKEN_REGEX.exec(text)) !== null) {
       const token = t[0];
+      // 같은 줄에서 이미 잡힌 finding의 match에 이 토큰이 포함되면 중복으로 본다.
+      // (JWT처럼 점으로 나뉜 시크릿의 세그먼트가 따로 잡히는 것을 막는다.)
       const alreadyFlagged = findings.some(
-        (f) => f.line === lineNo && f.match === token,
+        (f) => f.line === lineNo && f.match !== undefined && f.match.includes(token),
       );
       if (alreadyFlagged) continue;
       if (looksLikeSecret(token, input.config.entropyThreshold)) {

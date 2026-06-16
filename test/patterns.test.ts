@@ -27,6 +27,13 @@ test('JWT 탐지', () => {
   assert.ok(run(`token=${jwt}`).some((x) => x.ruleId === 'pattern:jwt'));
 });
 
+test('JWT 한 줄은 정확히 1건만 보고한다 (세그먼트 entropy 중복 없음)', () => {
+  const jwt = 'eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxMjM0NTY3ODkwIn0.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c';
+  const f = run(`token=${jwt}`);
+  assert.equal(f.length, 1);
+  assert.equal(f[0].ruleId, 'pattern:jwt');
+});
+
 test('라인 번호가 채워진다', () => {
   const f = run('line1\nline2\nconst k = "AKIAIOSFODNN7EXAMPLE";');
   const hit = f.find((x) => x.ruleId === 'pattern:aws-access-key');
