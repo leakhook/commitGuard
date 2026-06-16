@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 // 액션: argv 파싱 후 명령으로 라우팅한다.
+import { runScan } from './commands/scan.js';
 
 function main(argv: string[]): void {
   const [command, ...rest] = argv;
@@ -7,9 +8,11 @@ function main(argv: string[]): void {
     case 'init':
       console.log('init: 아직 구현되지 않음');
       break;
-    case 'scan':
-      console.log('scan: 아직 구현되지 않음');
-      break;
+    case 'scan': {
+      const staged = rest.includes('--staged');
+      const code = runScan({ cwd: process.cwd(), staged });
+      process.exit(code);
+    }
     case undefined:
     case '-h':
     case '--help':
