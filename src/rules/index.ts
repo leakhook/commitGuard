@@ -62,7 +62,8 @@ export function scanFile(filePath: string, content: string, config: Config): Fin
   findings.push(...checkWatchList(filePath, config));
 
   // 내용 기반 룰: 바이너리/대용량 스킵.
-  if (content.length <= MAX_SCAN_BYTES && !isProbablyBinary(content)) {
+  // string.length는 UTF-16 코드유닛 수이므로 실제 바이트로 비교한다(멀티바이트 정확성).
+  if (Buffer.byteLength(content, 'utf8') <= MAX_SCAN_BYTES && !isProbablyBinary(content)) {
     const input: RuleInput = { file: filePath, content, config };
     findings.push(...checkPatterns(input));
     findings.push(...checkNextPublic(input));
