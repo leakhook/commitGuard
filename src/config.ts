@@ -9,7 +9,9 @@ export function mergeConfig(partial: Partial<Config>): Config {
   if (Array.isArray(partial.watch)) out.watch = partial.watch.filter((x) => typeof x === 'string');
   if (Array.isArray(partial.ignore)) out.ignore = partial.ignore.filter((x) => typeof x === 'string');
   if (typeof partial.allowNextPublic === 'boolean') out.allowNextPublic = partial.allowNextPublic;
-  if (typeof partial.entropyThreshold === 'number') out.entropyThreshold = partial.entropyThreshold;
+  if (typeof partial.entropyThreshold === 'number' && partial.entropyThreshold > 0) {
+    out.entropyThreshold = partial.entropyThreshold;
+  }
   return out;
 }
 
@@ -30,7 +32,13 @@ export function loadConfig(cwd: string): Config {
   }
   const pkgPath = join(cwd, 'package.json');
   if (existsSync(pkgPath)) {
-    const pkg = JSON.parse(readFileSync(pkgPath, 'utf8'));
+    let pkg: { envguard?: unknown };
+    try {
+      pkg = JSON.parse(readFileSync(pkgPath, 'utf8'));
+    } catch {
+      // package.json이 깨졌어도 설정 로드는 기본값으로 진행한다(스캔을 막지 않음).
+      return { ...DEFAULT_CONFIG };
+    }
     if (pkg.envguard && typeof pkg.envguard === 'object') {
       return mergeConfig(pkg.envguard as Partial<Config>);
     }
