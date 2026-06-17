@@ -2,7 +2,7 @@
 import { existsSync, readFileSync, writeFileSync, mkdirSync, chmodSync } from 'node:fs';
 import { join } from 'node:path';
 
-const SCAN_LINE = 'npx envguard scan --staged';
+const SCAN_LINE = 'npx commitguard scan --staged';
 const RC_DEFAULT = `{
   "watch": [],
   "ignore": [".env.example", ".env.sample", ".env.template"],
@@ -11,9 +11,9 @@ const RC_DEFAULT = `{
 }
 `;
 
-// .envguardrc 생성. 이미 있으면 false 반환(보존).
+// .commitguardrc 생성. 이미 있으면 false 반환(보존).
 export function ensureRc(cwd: string): boolean {
-  const rc = join(cwd, '.envguardrc');
+  const rc = join(cwd, '.commitguardrc');
   if (existsSync(rc)) return false;
   writeFileSync(rc, RC_DEFAULT);
   return true;
@@ -60,10 +60,10 @@ export function runInit(cwd: string): number {
   ensurePrepareScript(cwd);
   ensurePreCommitHook(cwd);
 
-  process.stdout.write('envguard init 완료:\n');
+  process.stdout.write('commitguard init 완료:\n');
   process.stdout.write(`  - .husky/pre-commit 에 "${SCAN_LINE}" 등록\n`);
   process.stdout.write(`  - package.json prepare 스크립트 확인/추가\n`);
-  process.stdout.write(`  - .envguardrc ${rcCreated ? '생성' : '이미 존재(보존)'}\n`);
+  process.stdout.write(`  - .commitguardrc ${rcCreated ? '생성' : '이미 존재(보존)'}\n`);
   process.stdout.write('\nhusky가 아직 설치되지 않았다면: npm install -D husky\n');
   return 0;
 }

@@ -67,7 +67,7 @@ export function checkPatterns(input: RuleInput): Finding[] {
           ruleId: 'entropy',
           severity: 'error',
           message: `높은 엔트로피의 문자열이 발견되었습니다. 시크릿일 수 있습니다.`,
-          hint: `의도된 값이 아니라면 환경변수로 옮기세요. 오탐이면 .envguardrc의 entropyThreshold를 높이거나 ignore에 경로를 추가하세요.`,
+          hint: `의도된 값이 아니라면 환경변수로 옮기세요. 오탐이면 .commitguardrc의 entropyThreshold를 높이거나 ignore에 경로를 추가하세요.`,
           match: token,
         });
       }

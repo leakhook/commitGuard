@@ -7,7 +7,7 @@ import { execFileSync } from 'node:child_process';
 import { runScan } from '../src/commands/scan.js';
 
 function tmpRepo(): string {
-  const dir = mkdtempSync(join(tmpdir(), 'envguard-scan-'));
+  const dir = mkdtempSync(join(tmpdir(), 'commitguard-scan-'));
   execFileSync('git', ['init', '-q'], { cwd: dir });
   execFileSync('git', ['config', 'user.email', 't@t.com'], { cwd: dir });
   execFileSync('git', ['config', 'user.name', 't'], { cwd: dir });

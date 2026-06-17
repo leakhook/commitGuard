@@ -20,27 +20,27 @@ export function parseConfigJson(raw: string): Partial<Config> {
   try {
     return JSON.parse(raw) as Partial<Config>;
   } catch (e) {
-    throw new Error(`.envguardrc 파싱 실패: 올바른 JSON이 아닙니다. (${(e as Error).message})`);
+    throw new Error(`.commitguardrc 파싱 실패: 올바른 JSON이 아닙니다. (${(e as Error).message})`);
   }
 }
 
-// 액션: 디스크에서 설정을 로드한다. 우선순위 .envguardrc > package.json "envguard" > 기본값.
+// 액션: 디스크에서 설정을 로드한다. 우선순위 .commitguardrc > package.json "commitguard" > 기본값.
 export function loadConfig(cwd: string): Config {
-  const rcPath = join(cwd, '.envguardrc');
+  const rcPath = join(cwd, '.commitguardrc');
   if (existsSync(rcPath)) {
     return mergeConfig(parseConfigJson(readFileSync(rcPath, 'utf8')));
   }
   const pkgPath = join(cwd, 'package.json');
   if (existsSync(pkgPath)) {
-    let pkg: { envguard?: unknown };
+    let pkg: { commitguard?: unknown };
     try {
       pkg = JSON.parse(readFileSync(pkgPath, 'utf8'));
     } catch {
       // package.json이 깨졌어도 설정 로드는 기본값으로 진행한다(스캔을 막지 않음).
       return { ...DEFAULT_CONFIG };
     }
-    if (pkg.envguard && typeof pkg.envguard === 'object') {
-      return mergeConfig(pkg.envguard as Partial<Config>);
+    if (pkg.commitguard && typeof pkg.commitguard === 'object') {
+      return mergeConfig(pkg.commitguard as Partial<Config>);
     }
   }
   return { ...DEFAULT_CONFIG };

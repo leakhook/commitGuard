@@ -32,5 +32,5 @@ test('일반 .ts 파일은 아무 finding도 없다', () => {
 });
 
 test('envrc 처럼 .env 로 시작만 하는 것은 차단 안 함', () => {
-  assert.equal(checkEnvFile('.envguardrc', DEFAULT_CONFIG).length, 0);
+  assert.equal(checkEnvFile('.commitguardrc', DEFAULT_CONFIG).length, 0);
 });

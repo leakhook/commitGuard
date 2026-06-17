@@ -7,27 +7,27 @@ import { execFileSync } from 'node:child_process';
 import { ensurePreCommitHook, ensurePrepareScript, ensureRc } from '../src/commands/init.js';
 
 function tmpRepo(): string {
-  const dir = mkdtempSync(join(tmpdir(), 'envguard-init-'));
+  const dir = mkdtempSync(join(tmpdir(), 'commitguard-init-'));
   execFileSync('git', ['init', '-q'], { cwd: dir });
   return dir;
 }
 
-test('ensureRc: 없으면 기본 .envguardrc 생성', () => {
+test('ensureRc: 없으면 기본 .commitguardrc 생성', () => {
   const dir = tmpRepo();
   const created = ensureRc(dir);
   assert.equal(created, true);
-  assert.ok(existsSync(join(dir, '.envguardrc')));
-  const cfg = JSON.parse(readFileSync(join(dir, '.envguardrc'), 'utf8'));
+  assert.ok(existsSync(join(dir, '.commitguardrc')));
+  const cfg = JSON.parse(readFileSync(join(dir, '.commitguardrc'), 'utf8'));
   assert.equal(cfg.allowNextPublic, false);
   rmSync(dir, { recursive: true, force: true });
 });
 
 test('ensureRc: 이미 있으면 보존(덮어쓰지 않음)', () => {
   const dir = tmpRepo();
-  writeFileSync(join(dir, '.envguardrc'), '{"watch":["keep.ts"]}');
+  writeFileSync(join(dir, '.commitguardrc'), '{"watch":["keep.ts"]}');
   const created = ensureRc(dir);
   assert.equal(created, false);
-  assert.deepEqual(JSON.parse(readFileSync(join(dir, '.envguardrc'), 'utf8')).watch, ['keep.ts']);
+  assert.deepEqual(JSON.parse(readFileSync(join(dir, '.commitguardrc'), 'utf8')).watch, ['keep.ts']);
   rmSync(dir, { recursive: true, force: true });
 });
 
@@ -35,7 +35,7 @@ test('ensurePreCommitHook: 훅 파일에 scan 줄 추가', () => {
   const dir = tmpRepo();
   ensurePreCommitHook(dir);
   const hook = readFileSync(join(dir, '.husky', 'pre-commit'), 'utf8');
-  assert.ok(hook.includes('npx envguard scan --staged'));
+  assert.ok(hook.includes('npx commitguard scan --staged'));
   rmSync(dir, { recursive: true, force: true });
 });
 
@@ -44,7 +44,7 @@ test('ensurePreCommitHook: 멱등 — 두 번 실행해도 줄 1개', () => {
   ensurePreCommitHook(dir);
   ensurePreCommitHook(dir);
   const hook = readFileSync(join(dir, '.husky', 'pre-commit'), 'utf8');
-  const count = hook.split('\n').filter((l) => l.includes('npx envguard scan --staged')).length;
+  const count = hook.split('\n').filter((l) => l.includes('npx commitguard scan --staged')).length;
   assert.equal(count, 1);
   rmSync(dir, { recursive: true, force: true });
 });

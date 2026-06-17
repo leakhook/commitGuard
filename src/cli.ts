@@ -27,11 +27,11 @@ function main(argv: string[]): void {
 }
 
 function printHelp(): void {
-  console.log(`envguard - 시크릿 커밋 방지 도구
+  console.log(`commitguard - 시크릿 커밋 방지 도구
 
 사용법:
-  envguard init            husky 훅과 기본 설정을 등록한다
-  envguard scan [--staged] 시크릿을 검사한다 (--staged: 스테이지된 파일만)
+  commitguard init            husky 훅과 기본 설정을 등록한다
+  commitguard scan [--staged] 시크릿을 검사한다 (--staged: 스테이지된 파일만)
 `);
 }
 

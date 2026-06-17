@@ -7,7 +7,7 @@ import { execFileSync } from 'node:child_process';
 import { getStagedFiles, getTrackedFiles, readStagedContent, isGitRepo } from '../src/git.js';
 
 function tmpRepo(): string {
-  const dir = mkdtempSync(join(tmpdir(), 'envguard-git-'));
+  const dir = mkdtempSync(join(tmpdir(), 'commitguard-git-'));
   execFileSync('git', ['init', '-q'], { cwd: dir });
   execFileSync('git', ['config', 'user.email', 't@t.com'], { cwd: dir });
   execFileSync('git', ['config', 'user.name', 't'], { cwd: dir });

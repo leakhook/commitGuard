@@ -20,7 +20,7 @@ function location(f: Finding): string {
 
 export function formatReport(findings: Finding[], colorEnabled: boolean): string {
   if (findings.length === 0) {
-    return color('✓ envguard: 문제 없음 (clean)', 'green', colorEnabled);
+    return color('✓ commitguard: 문제 없음 (clean)', 'green', colorEnabled);
   }
 
   const lines: string[] = [];
@@ -36,7 +36,7 @@ export function formatReport(findings: Finding[], colorEnabled: boolean): string
 
   const errors = findings.filter((f) => f.severity === 'error').length;
   const warns = findings.filter((f) => f.severity === 'warn').length;
-  lines.push(`envguard: ${color(`error ${errors}`, 'red', colorEnabled)}, ${color(`warn ${warns}`, 'yellow', colorEnabled)}`);
+  lines.push(`commitguard: ${color(`error ${errors}`, 'red', colorEnabled)}, ${color(`warn ${warns}`, 'yellow', colorEnabled)}`);
   if (errors > 0) {
     lines.push(color('이미 git history에 올라간 시크릿이라면 키를 즉시 폐기(rotate)하고 git-filter-repo 등으로 기록을 제거하세요.', 'gray', colorEnabled));
   }

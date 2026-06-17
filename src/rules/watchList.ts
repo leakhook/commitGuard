@@ -14,8 +14,8 @@ export function checkWatchList(filePath: string, config: Config): Finding[] {
       file: filePath,
       ruleId: 'watch',
       severity: 'error',
-      message: `감시 대상 파일(${filePath})이 스테이지되었습니다. .envguardrc의 watch 목록에 등록되어 있습니다.`,
-      hint: `git rm --cached "${filePath}" 로 스테이지에서 빼세요. 더 이상 감시가 필요 없으면 .envguardrc의 watch에서 제거하세요.`,
+      message: `감시 대상 파일(${filePath})이 스테이지되었습니다. .commitguardrc의 watch 목록에 등록되어 있습니다.`,
+      hint: `git rm --cached "${filePath}" 로 스테이지에서 빼세요. 더 이상 감시가 필요 없으면 .commitguardrc의 watch에서 제거하세요.`,
     },
   ];
 }

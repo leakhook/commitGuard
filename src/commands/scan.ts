@@ -33,7 +33,7 @@ function collectFindings(
 
 export function runScan(opts: ScanOptions): number {
   if (!isGitRepo(opts.cwd)) {
-    process.stderr.write('envguard: git 저장소가 아닙니다. git init 후 다시 시도하세요.\n');
+    process.stderr.write('commitguard: git 저장소가 아닙니다. git init 후 다시 시도하세요.\n');
     return 2;
   }
 

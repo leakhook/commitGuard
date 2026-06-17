@@ -1,10 +1,22 @@
 {
-  "name": "envguard",
+  "name": "commitguard",
   "version": "0.1.0",
-  "description": "시크릿 커밋을 pre-commit 단계에서 막는 제로 설정 CLI",
+  "description": "Zero-config CLI that blocks secrets from being committed, at the pre-commit stage. Husky-first, built for Next.js / JS projects.",
   "type": "module",
-  "bin": { "envguard": "dist/cli.js" },
+  "bin": { "commitguard": "dist/cli.js" },
   "files": ["dist"],
+  "keywords": [
+    "secrets",
+    "secret-scanning",
+    "pre-commit",
+    "husky",
+    "git-hooks",
+    "security",
+    "dotenv",
+    "env",
+    "nextjs",
+    "leak"
+  ],
   "scripts": {
     "build": "tsc",
     "test": "tsx --test test/*.test.ts",
@@ -12,6 +24,9 @@
   },
   "engines": { "node": ">=18" },
   "license": "MIT",
+  "repository": { "type": "git", "url": "git+https://github.com/leakhook/commitGuard.git" },
+  "homepage": "https://github.com/leakhook/commitGuard#readme",
+  "bugs": { "url": "https://github.com/leakhook/commitGuard/issues" },
   "devDependencies": {
     "typescript": "^5.5.0",
     "tsx": "^4.16.0",
