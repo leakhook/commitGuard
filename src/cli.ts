@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// Action: parse argv and route to a command.
 // 액션: argv 파싱 후 명령으로 라우팅한다.
 import { runScan } from './commands/scan.js';
 import { runInit } from './commands/init.js';

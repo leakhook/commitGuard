@@ -1,8 +1,10 @@
+// Action (load: read files) + calculation (merge/validate).
 // 액션(로드: 파일 읽기) + 계산(병합/검증).
 import { readFileSync, existsSync } from 'node:fs';
 import { join } from 'node:path';
 import { Config, DEFAULT_CONFIG } from './rules/types.js';
 
+// Calculation: merge a partial config with defaults and validate types.
 // 계산: 부분 설정을 기본값과 병합하고 타입을 검증한다.
 export function mergeConfig(partial: Partial<Config>): Config {
   const out: Config = { ...DEFAULT_CONFIG };
@@ -15,15 +17,17 @@ export function mergeConfig(partial: Partial<Config>): Config {
   return out;
 }
 
+// Calculation: parse a JSON string. On failure, throw an error that names the source.
 // 계산: JSON 문자열 파싱. 실패 시 출처를 알려주는 에러.
 export function parseConfigJson(raw: string): Partial<Config> {
   try {
     return JSON.parse(raw) as Partial<Config>;
   } catch (e) {
-    throw new Error(`.commitguardrc 파싱 실패: 올바른 JSON이 아닙니다. (${(e as Error).message})`);
+    throw new Error(`Failed to parse .commitguardrc: not valid JSON. (${(e as Error).message})`);
   }
 }
 
+// Action: load config from disk. Priority: .commitguardrc > package.json "commitguard" > defaults.
 // 액션: 디스크에서 설정을 로드한다. 우선순위 .commitguardrc > package.json "commitguard" > 기본값.
 export function loadConfig(cwd: string): Config {
   const rcPath = join(cwd, '.commitguardrc');
@@ -36,7 +40,8 @@ export function loadConfig(cwd: string): Config {
     try {
       pkg = JSON.parse(readFileSync(pkgPath, 'utf8'));
     } catch {
-      // package.json이 깨졌어도 설정 로드는 기본값으로 진행한다(스캔을 막지 않음).
+      // Even if package.json is broken, fall back to defaults (don't block scanning).
+      // package.json이 깨졌어도 기본값으로 진행한다(스캔을 막지 않음).
       return { ...DEFAULT_CONFIG };
     }
     if (pkg.commitguard && typeof pkg.commitguard === 'object') {

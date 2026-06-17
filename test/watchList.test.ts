@@ -5,21 +5,21 @@ import { DEFAULT_CONFIG } from '../src/rules/types.js';
 
 const cfg = { ...DEFAULT_CONFIG, watch: ['config/secrets.ts', 'src/firebase.config.js'] };
 
-test('watch 목록의 파일은 error', () => {
+test('a file in the watch list is an error — watch 목록의 파일은 error', () => {
   const f = checkWatchList('config/secrets.ts', cfg);
   assert.equal(f.length, 1);
   assert.equal(f[0].severity, 'error');
   assert.equal(f[0].ruleId, 'watch');
 });
 
-test('경로 구분자 차이를 정규화 (윈도우 백슬래시)', () => {
+test('normalizes path-separator differences (Windows backslash) — 경로 구분자 차이를 정규화 (윈도우 백슬래시)', () => {
   assert.equal(checkWatchList('config\\secrets.ts', cfg).length, 1);
 });
 
-test('watch에 없는 파일은 finding 없음', () => {
+test('a file not in watch yields no finding — watch에 없는 파일은 finding 없음', () => {
   assert.equal(checkWatchList('src/index.ts', cfg).length, 0);
 });
 
-test('watch 빈 배열이면 항상 0', () => {
+test('always 0 when watch is empty — watch 빈 배열이면 항상 0', () => {
   assert.equal(checkWatchList('config/secrets.ts', DEFAULT_CONFIG).length, 0);
 });

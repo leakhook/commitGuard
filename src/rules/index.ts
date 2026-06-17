@@ -1,3 +1,4 @@
+// Calculation: apply every rule to one file (path + content) and compose the Finding[].
 // 계산: 한 파일(경로 + 내용)에 모든 룰을 적용해 Finding[]을 합성한다.
 import { Config, Finding, RuleInput } from './types.js';
 import { checkEnvFile } from './envFiles.js';
@@ -5,8 +6,9 @@ import { checkPatterns } from './patterns.js';
 import { checkNextPublic } from './nextPublic.js';
 import { checkWatchList } from './watchList.js';
 
-const MAX_SCAN_BYTES = 1_000_000; // 1MB 초과 파일은 내용 스캔 스킵
+const MAX_SCAN_BYTES = 1_000_000; // skip content scanning for files over 1MB (1MB 초과 파일은 내용 스캔 스킵)
 
+// Simple glob: * matches any char except slash, ** includes slashes.
 // 단순 글롭: * 는 슬래시 제외 임의 문자, ** 는 슬래시 포함.
 function globToRegex(glob: string): RegExp {
   const norm = glob.replace(/\\/g, '/');
@@ -23,6 +25,7 @@ function isIgnored(filePath: string, ignore: string[]): boolean {
   return ignore.some((g) => {
     const gn = g.replace(/\\/g, '/');
     if (gn === norm) return true;
+    // also allow basename matches (entries like .env.example)
     // basename 일치도 허용 (.env.example 같은 항목)
     if (!gn.includes('/') && norm.split('/').pop() === gn) return true;
     return globToRegex(gn).test(norm);
@@ -33,6 +36,9 @@ export function isProbablyBinary(content: string): boolean {
   return content.includes('\x00');
 }
 
+// Calculation: drop generic entropy errors for values already covered by a NEXT_PUBLIC_ warning.
+// (NEXT_PUBLIC_ may be intentional exposure, so it's a warn; generic entropy shouldn't re-raise
+//  the same value to error. Known-pattern errors are kept.)
 // 계산: NEXT_PUBLIC_ 경고가 덮는 값에 대한 범용 entropy 에러를 제거한다.
 // (NEXT_PUBLIC_은 의도적 노출일 수 있어 warn으로 처리하므로, 같은 값을
 //  generic entropy가 다시 error로 올리지 않는다. 단 known-pattern 에러는 유지.)
@@ -54,13 +60,17 @@ function suppressEntropyUnderNextPublic(findings: Finding[]): Finding[] {
 export function scanFile(filePath: string, content: string, config: Config): Finding[] {
   const findings: Finding[] = [];
 
+  // Check ignore globs first.
   // ignore 글롭 우선 체크.
   if (isIgnored(filePath, config.ignore)) return findings;
 
+  // Path-based rules always run.
   // 경로 기반 룰은 항상 적용.
   findings.push(...checkEnvFile(filePath, config));
   findings.push(...checkWatchList(filePath, config));
 
+  // Content-based rules: skip binary/oversized files.
+  // string.length counts UTF-16 code units, so compare by actual bytes (multibyte accuracy).
   // 내용 기반 룰: 바이너리/대용량 스킵.
   // string.length는 UTF-16 코드유닛 수이므로 실제 바이트로 비교한다(멀티바이트 정확성).
   if (Buffer.byteLength(content, 'utf8') <= MAX_SCAN_BYTES && !isProbablyBinary(content)) {

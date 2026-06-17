@@ -1,7 +1,9 @@
+// Calculation: format Finding[] into a human-readable string. (printReport is the action.)
 // 계산: Finding[]을 사람이 읽기 좋은 문자열로 포맷한다. (액션은 printReport)
 import { Finding, Severity } from './rules/types.js';
 import { color } from './ansi.js';
 
+// Mask a secret token: reveal only the first 4 characters.
 // 시크릿 토큰 마스킹: 앞 4자만 노출.
 export function maskSecret(value: string): string {
   if (value.length <= 4) return '*'.repeat(value.length);
@@ -43,6 +45,7 @@ export function formatReport(findings: Finding[], colorEnabled: boolean): string
   return lines.join('\n');
 }
 
+// Action: print the report to the console.
 // 액션: 콘솔에 리포트를 출력한다.
 export function printReport(findings: Finding[], stream: NodeJS.WriteStream = process.stderr): void {
   const colorEnabled = stream.isTTY === true;

@@ -15,7 +15,7 @@ function tmpRepo(): string {
 }
 const add = (dir: string, f: string) => execFileSync('git', ['add', f], { cwd: dir });
 
-test('staged .env 가 있으면 exit code 1', () => {
+test('staged .env gives exit code 1 — staged .env 가 있으면 exit code 1', () => {
   const dir = tmpRepo();
   writeFileSync(join(dir, '.env'), 'API_KEY=secret');
   add(dir, '.env');
@@ -23,7 +23,7 @@ test('staged .env 가 있으면 exit code 1', () => {
   rmSync(dir, { recursive: true, force: true });
 });
 
-test('깨끗한 staged 파일은 exit code 0', () => {
+test('clean staged files give exit code 0 — 깨끗한 staged 파일은 exit code 0', () => {
   const dir = tmpRepo();
   writeFileSync(join(dir, 'index.ts'), 'export const x = 1;');
   add(dir, 'index.ts');
@@ -31,7 +31,7 @@ test('깨끗한 staged 파일은 exit code 0', () => {
   rmSync(dir, { recursive: true, force: true });
 });
 
-test('warn만 있으면 exit code 0', () => {
+test('warnings only give exit code 0 — warn만 있으면 exit code 0', () => {
   const dir = tmpRepo();
   writeFileSync(join(dir, 'app.ts'), 'const u = "NEXT_PUBLIC_K=aB3xK9pQ7zR2mN5wT8uV1cD4";');
   add(dir, 'app.ts');
@@ -39,7 +39,7 @@ test('warn만 있으면 exit code 0', () => {
   rmSync(dir, { recursive: true, force: true });
 });
 
-test('스테이지 blob 기준으로 읽는다 (스테이징 후 수정해도 staged 내용 검사)', () => {
+test('reads from the staged blob (edits after staging do not bypass) — 스테이지 blob 기준으로 읽는다 (스테이징 후 수정해도 staged 내용 검사)', () => {
   const dir = tmpRepo();
   writeFileSync(join(dir, 'a.ts'), 'const k="AKIAIOSFODNN7EXAMPLE";');
   add(dir, 'a.ts');
@@ -48,6 +48,6 @@ test('스테이지 blob 기준으로 읽는다 (스테이징 후 수정해도 st
   rmSync(dir, { recursive: true, force: true });
 });
 
-test('git repo가 아니면 exit code 2', () => {
+test('exit code 2 when not a git repo — git repo가 아니면 exit code 2', () => {
   assert.equal(runScan({ cwd: tmpdir(), staged: true }), 2);
 });

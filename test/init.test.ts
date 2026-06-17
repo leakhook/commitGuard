@@ -12,7 +12,7 @@ function tmpRepo(): string {
   return dir;
 }
 
-test('ensureRc: 없으면 기본 .commitguardrc 생성', () => {
+test('ensureRc: creates a default .commitguardrc when missing — 없으면 기본 .commitguardrc 생성', () => {
   const dir = tmpRepo();
   const created = ensureRc(dir);
   assert.equal(created, true);
@@ -22,7 +22,7 @@ test('ensureRc: 없으면 기본 .commitguardrc 생성', () => {
   rmSync(dir, { recursive: true, force: true });
 });
 
-test('ensureRc: 이미 있으면 보존(덮어쓰지 않음)', () => {
+test('ensureRc: kept if it already exists (no overwrite) — 이미 있으면 보존(덮어쓰지 않음)', () => {
   const dir = tmpRepo();
   writeFileSync(join(dir, '.commitguardrc'), '{"watch":["keep.ts"]}');
   const created = ensureRc(dir);
@@ -31,7 +31,7 @@ test('ensureRc: 이미 있으면 보존(덮어쓰지 않음)', () => {
   rmSync(dir, { recursive: true, force: true });
 });
 
-test('ensurePreCommitHook: 훅 파일에 scan 줄 추가', () => {
+test('ensurePreCommitHook: adds the scan line to the hook file — 훅 파일에 scan 줄 추가', () => {
   const dir = tmpRepo();
   ensurePreCommitHook(dir);
   const hook = readFileSync(join(dir, '.husky', 'pre-commit'), 'utf8');
@@ -39,7 +39,7 @@ test('ensurePreCommitHook: 훅 파일에 scan 줄 추가', () => {
   rmSync(dir, { recursive: true, force: true });
 });
 
-test('ensurePreCommitHook: 멱등 — 두 번 실행해도 줄 1개', () => {
+test('ensurePreCommitHook: idempotent, one line after two runs — 멱등, 두 번 실행해도 줄 1개', () => {
   const dir = tmpRepo();
   ensurePreCommitHook(dir);
   ensurePreCommitHook(dir);
@@ -49,7 +49,7 @@ test('ensurePreCommitHook: 멱등 — 두 번 실행해도 줄 1개', () => {
   rmSync(dir, { recursive: true, force: true });
 });
 
-test('ensurePrepareScript: package.json에 prepare 추가', () => {
+test('ensurePrepareScript: adds prepare to package.json — package.json에 prepare 추가', () => {
   const dir = tmpRepo();
   writeFileSync(join(dir, 'package.json'), JSON.stringify({ name: 'x', scripts: {} }));
   ensurePrepareScript(dir);
@@ -58,7 +58,7 @@ test('ensurePrepareScript: package.json에 prepare 추가', () => {
   rmSync(dir, { recursive: true, force: true });
 });
 
-test('ensurePrepareScript: 기존 prepare 보존', () => {
+test('ensurePrepareScript: keeps an existing prepare — 기존 prepare 보존', () => {
   const dir = tmpRepo();
   writeFileSync(join(dir, 'package.json'), JSON.stringify({ name: 'x', scripts: { prepare: 'echo hi' } }));
   ensurePrepareScript(dir);

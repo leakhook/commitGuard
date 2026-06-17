@@ -1,3 +1,4 @@
+// Action: gather the file list, apply rules, print the report, and decide the exit code.
 // 액션: 파일 목록을 모으고 룰을 적용한 뒤 리포트를 출력하고 exit code를 결정한다.
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';

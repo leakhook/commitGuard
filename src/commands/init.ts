@@ -1,3 +1,4 @@
+// Action: idempotently create the husky hook/config. Each function returns whether it acted, so the caller can summarize.
 // 액션: husky 훅/설정을 멱등하게 생성한다. 각 함수는 수행 여부를 반환해 호출측이 요약 출력.
 import { existsSync, readFileSync, writeFileSync, mkdirSync, chmodSync } from 'node:fs';
 import { join } from 'node:path';
@@ -11,6 +12,7 @@ const RC_DEFAULT = `{
 }
 `;
 
+// Create .commitguardrc. Returns false if it already exists (kept).
 // .commitguardrc 생성. 이미 있으면 false 반환(보존).
 export function ensureRc(cwd: string): boolean {
   const rc = join(cwd, '.commitguardrc');
@@ -19,6 +21,7 @@ export function ensureRc(cwd: string): boolean {
   return true;
 }
 
+// Idempotently add the scan line to .husky/pre-commit.
 // .husky/pre-commit 에 scan 줄을 멱등하게 추가.
 export function ensurePreCommitHook(cwd: string): void {
   const huskyDir = join(cwd, '.husky');
@@ -26,7 +29,7 @@ export function ensurePreCommitHook(cwd: string): void {
   const hookPath = join(huskyDir, 'pre-commit');
 
   let content = existsSync(hookPath) ? readFileSync(hookPath, 'utf8') : '';
-  if (content.includes(SCAN_LINE)) return; // 멱등
+  if (content.includes(SCAN_LINE)) return; // idempotent (멱등)
 
   if (content.trim() === '') {
     content = `${SCAN_LINE}\n`;
@@ -38,10 +41,12 @@ export function ensurePreCommitHook(cwd: string): void {
   try {
     chmodSync(hookPath, 0o755);
   } catch {
+    // ignore on platforms without chmod (e.g. Windows)
     // 윈도우 등 chmod 미지원 환경은 무시
   }
 }
 
+// Add "husky" to package.json scripts.prepare if it's missing.
 // package.json scripts.prepare 가 없으면 "husky" 추가.
 export function ensurePrepareScript(cwd: string): void {
   const pkgPath = join(cwd, 'package.json');
@@ -54,6 +59,7 @@ export function ensurePrepareScript(cwd: string): void {
   }
 }
 
+// Action: run the full init. husky installation is only suggested (depends on the user's environment).
 // 액션: init 전체 실행. husky 설치는 안내만(사용자 환경 의존).
 export function runInit(cwd: string): number {
   const rcCreated = ensureRc(cwd);

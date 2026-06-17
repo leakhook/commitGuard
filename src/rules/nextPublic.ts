@@ -1,7 +1,9 @@
+// Calculation: warn when a NEXT_PUBLIC_ variable is assigned a secret-looking value.
 // 계산: NEXT_PUBLIC_ 변수에 시크릿처럼 보이는 값이 할당되면 warn.
 import { Finding, RuleInput } from './types.js';
 import { looksLikeSecret } from './entropy.js';
 
+// Matches NEXT_PUBLIC_NAME=value or NEXT_PUBLIC_NAME: value.
 // NEXT_PUBLIC_NAME=value 또는 NEXT_PUBLIC_NAME: value 형태.
 const ASSIGN_REGEX = /NEXT_PUBLIC_[A-Z0-9_]+\s*[=:]\s*['"]?([^'"\s]+)['"]?/g;
 

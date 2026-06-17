@@ -14,14 +14,14 @@ function tmpRepo(): string {
   return dir;
 }
 
-test('isGitRepo: repo 안에서 true, 밖에서 false', () => {
+test('isGitRepo: true inside a repo, false outside — repo 안에서 true, 밖에서 false', () => {
   const dir = tmpRepo();
   assert.equal(isGitRepo(dir), true);
   assert.equal(isGitRepo(tmpdir()), false);
   rmSync(dir, { recursive: true, force: true });
 });
 
-test('getStagedFiles: 스테이지된 파일만 반환', () => {
+test('getStagedFiles: returns only staged files — 스테이지된 파일만 반환', () => {
   const dir = tmpRepo();
   writeFileSync(join(dir, 'a.txt'), 'hello');
   writeFileSync(join(dir, 'b.txt'), 'world');
@@ -31,7 +31,7 @@ test('getStagedFiles: 스테이지된 파일만 반환', () => {
   rmSync(dir, { recursive: true, force: true });
 });
 
-test('readStagedContent: 스테이지된 blob 내용을 읽는다 (작업트리 수정과 무관)', () => {
+test('readStagedContent: reads staged blob content (independent of working-tree edits) — 스테이지된 blob 내용을 읽는다 (작업트리 수정과 무관)', () => {
   const dir = tmpRepo();
   writeFileSync(join(dir, 'a.txt'), 'staged-version');
   execFileSync('git', ['add', 'a.txt'], { cwd: dir });
@@ -40,7 +40,7 @@ test('readStagedContent: 스테이지된 blob 내용을 읽는다 (작업트리 
   rmSync(dir, { recursive: true, force: true });
 });
 
-test('getTrackedFiles: 커밋된 파일 목록', () => {
+test('getTrackedFiles: lists committed files — 커밋된 파일 목록', () => {
   const dir = tmpRepo();
   writeFileSync(join(dir, 'a.txt'), 'x');
   execFileSync('git', ['add', 'a.txt'], { cwd: dir });

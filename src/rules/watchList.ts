@@ -1,3 +1,4 @@
+// Calculation: error when the file is in the user-defined watch list.
 // 계산: 사용자가 지정한 watch 목록에 해당 파일이 들어가면 error.
 import { Config, Finding } from './types.js';
 

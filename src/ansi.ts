@@ -1,3 +1,4 @@
+// Calculation: ANSI color helper. Returns the text unchanged when enabled=false.
 // 계산: ANSI 색상 헬퍼. enabled=false면 원문 그대로 반환.
 type Color = 'red' | 'yellow' | 'green' | 'gray' | 'bold';
 
