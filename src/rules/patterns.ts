@@ -28,8 +28,8 @@ function pattern(file: string, line: number, label: string, ruleId: string, matc
     line,
     ruleId,
     severity: 'error',
-    message: `${label}로 보이는 시크릿이 코드에 포함되어 있습니다.`,
-    hint: `값을 환경변수로 옮기고 코드에서 제거하세요. 이미 노출됐다면 해당 키를 즉시 폐기(rotate)하세요.`,
+    message: `Possible ${label} found in the code.`,
+    hint: `Move the value to an environment variable and remove it from the code. If it was exposed, rotate the key immediately.`,
     match,
   };
 }
@@ -66,8 +66,8 @@ export function checkPatterns(input: RuleInput): Finding[] {
           line: lineNo,
           ruleId: 'entropy',
           severity: 'error',
-          message: `높은 엔트로피의 문자열이 발견되었습니다. 시크릿일 수 있습니다.`,
-          hint: `의도된 값이 아니라면 환경변수로 옮기세요. 오탐이면 .commitguardrc의 entropyThreshold를 높이거나 ignore에 경로를 추가하세요.`,
+          message: `A high-entropy string was found. It may be a secret.`,
+          hint: `If it isn't intentional, move it to an environment variable. If it's a false positive, raise entropyThreshold in .commitguardrc or add the path to ignore.`,
           match: token,
         });
       }

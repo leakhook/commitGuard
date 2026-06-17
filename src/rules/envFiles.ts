@@ -21,8 +21,8 @@ export function checkEnvFile(filePath: string, config: Config): Finding[] {
       file: filePath,
       ruleId: 'env-file',
       severity: 'error',
-      message: `환경변수 파일(${basename})이 스테이지되었습니다. 시크릿이 포함될 수 있습니다.`,
-      hint: `git rm --cached "${filePath}" 로 스테이지에서 빼고 .gitignore에 ${basename} 을 추가하세요.`,
+      message: `Env file (${basename}) is staged. It may contain secrets.`,
+      hint: `Unstage it with git rm --cached "${filePath}" and add ${basename} to .gitignore.`,
     },
   ];
 }

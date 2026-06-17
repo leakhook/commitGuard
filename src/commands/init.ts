@@ -60,10 +60,10 @@ export function runInit(cwd: string): number {
   ensurePrepareScript(cwd);
   ensurePreCommitHook(cwd);
 
-  process.stdout.write('commitguard init 완료:\n');
-  process.stdout.write(`  - .husky/pre-commit 에 "${SCAN_LINE}" 등록\n`);
-  process.stdout.write(`  - package.json prepare 스크립트 확인/추가\n`);
-  process.stdout.write(`  - .commitguardrc ${rcCreated ? '생성' : '이미 존재(보존)'}\n`);
-  process.stdout.write('\nhusky가 아직 설치되지 않았다면: npm install -D husky\n');
+  process.stdout.write('commitguard init complete:\n');
+  process.stdout.write(`  - registered "${SCAN_LINE}" in .husky/pre-commit\n`);
+  process.stdout.write(`  - ensured the package.json prepare script\n`);
+  process.stdout.write(`  - .commitguardrc ${rcCreated ? 'created' : 'already exists (kept)'}\n`);
+  process.stdout.write('\nIf husky is not installed yet: npm install -D husky\n');
   return 0;
 }

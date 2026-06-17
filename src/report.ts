@@ -20,7 +20,7 @@ function location(f: Finding): string {
 
 export function formatReport(findings: Finding[], colorEnabled: boolean): string {
   if (findings.length === 0) {
-    return color('✓ commitguard: 문제 없음 (clean)', 'green', colorEnabled);
+    return color('✓ commitguard: no problems found (clean)', 'green', colorEnabled);
   }
 
   const lines: string[] = [];
@@ -29,7 +29,7 @@ export function formatReport(findings: Finding[], colorEnabled: boolean): string
     const loc = color(location(f), 'bold', colorEnabled);
     lines.push(`${tag}  ${loc}  [${f.ruleId}]`);
     lines.push(`   ${f.message}`);
-    if (f.match) lines.push(color(`   값: ${maskSecret(f.match)}`, 'gray', colorEnabled));
+    if (f.match) lines.push(color(`   value: ${maskSecret(f.match)}`, 'gray', colorEnabled));
     lines.push(color(`   → ${f.hint}`, 'gray', colorEnabled));
     lines.push('');
   }
@@ -38,7 +38,7 @@ export function formatReport(findings: Finding[], colorEnabled: boolean): string
   const warns = findings.filter((f) => f.severity === 'warn').length;
   lines.push(`commitguard: ${color(`error ${errors}`, 'red', colorEnabled)}, ${color(`warn ${warns}`, 'yellow', colorEnabled)}`);
   if (errors > 0) {
-    lines.push(color('이미 git history에 올라간 시크릿이라면 키를 즉시 폐기(rotate)하고 git-filter-repo 등으로 기록을 제거하세요.', 'gray', colorEnabled));
+    lines.push(color('If a flagged secret is already in git history, rotate the key now and scrub it with git-filter-repo or BFG.', 'gray', colorEnabled));
   }
   return lines.join('\n');
 }

@@ -21,8 +21,8 @@ export function checkNextPublic(input: RuleInput): Finding[] {
           line: idx + 1,
           ruleId: 'next-public',
           severity: 'warn',
-          message: `NEXT_PUBLIC_ 변수에 시크릿처럼 보이는 값이 할당되었습니다. 이 값은 브라우저 번들에 노출됩니다.`,
-          hint: `클라이언트에 노출돼도 되는 값인지 확인하세요. 서버 전용 시크릿이라면 NEXT_PUBLIC_ 접두사를 제거하세요. 의도된 노출이면 .commitguardrc에서 allowNextPublic: true 로 끄세요.`,
+          message: `A NEXT_PUBLIC_ variable is assigned a secret-looking value. This value is exposed in the browser bundle.`,
+          hint: `Confirm this value is safe to expose to clients. If it's a server-only secret, drop the NEXT_PUBLIC_ prefix. If the exposure is intentional, set allowNextPublic: true in .commitguardrc.`,
           match: value,
         });
       }

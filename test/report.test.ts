@@ -5,7 +5,7 @@ import { Finding } from '../src/rules/types.js';
 
 const errFinding: Finding = {
   file: '.env', ruleId: 'env-file', severity: 'error',
-  message: '환경변수 파일이 스테이지되었습니다.', hint: 'git rm --cached 하세요.',
+  message: 'Env file is staged.', hint: 'Run git rm --cached.',
 };
 
 test('maskSecret: 앞 4자만 남기고 마스킹', () => {
@@ -19,12 +19,12 @@ test('maskSecret: 짧은 값은 전부 마스킹', () => {
 test('formatReport: error 포함 시 4요소(파일/메시지/힌트) 출력', () => {
   const out = formatReport([errFinding], false);
   assert.ok(out.includes('.env'));
-  assert.ok(out.includes('환경변수 파일'));
+  assert.ok(out.includes('Env file is staged'));
   assert.ok(out.includes('git rm --cached'));
 });
 
 test('formatReport: finding 없으면 통과 메시지', () => {
-  assert.match(formatReport([], false), /통과|문제 없음|clean/i);
+  assert.match(formatReport([], false), /clean|no problems/i);
 });
 
 test('formatReport: match가 있으면 마스킹되어 출력', () => {

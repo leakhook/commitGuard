@@ -21,17 +21,17 @@ function main(argv: string[]): void {
       printHelp();
       break;
     default:
-      console.error(`알 수 없는 명령: ${command}`);
+      console.error(`Unknown command: ${command}`);
       process.exit(2);
   }
 }
 
 function printHelp(): void {
-  console.log(`commitguard - 시크릿 커밋 방지 도구
+  console.log(`commitguard - block secrets from being committed
 
-사용법:
-  commitguard init            husky 훅과 기본 설정을 등록한다
-  commitguard scan [--staged] 시크릿을 검사한다 (--staged: 스테이지된 파일만)
+Usage:
+  commitguard init            install the husky hook and default config
+  commitguard scan [--staged] scan for secrets (--staged: staged files only)
 `);
 }
 
