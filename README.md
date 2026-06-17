@@ -1,39 +1,58 @@
-# envguard
+# commitGuard
 
-시크릿이 git에 커밋되는 것을 **pre-commit 단계에서** 막는 가벼운 제로 설정 CLI. Next.js 등 프론트엔드/JS 프로젝트가 주 타겟.
+> Read this in other languages: [한국어](./README.ko.md)
 
-## 설치
+A lightweight, **zero-config** CLI that stops secrets from being committed — at the **pre-commit stage**, before they ever reach your history. Built husky-first, with frontend / JS projects (especially Next.js) in mind.
 
-```bash
-npm install -D envguard husky
-npx envguard init
-```
+Tools like gitleaks and trufflehog are powerful but take setup and don't treat husky as a first-class citizen. commitGuard aims for a single command: **`npx commitguard init`** installs the husky hook, writes sensible defaults, and you write **zero config files**.
 
-`init`은 다음을 자동으로 수행합니다(멱등):
-- `.husky/pre-commit` 에 `npx envguard scan --staged` 등록
-- `package.json` 에 `"prepare": "husky"` 추가 (clone 후 `npm install`만으로 훅 복원)
-- 루트에 기본 `.envguardrc` 생성
+- 🔒 Blocks `.env*` files and hard-coded API keys before they're committed
+- 🪝 First-class **husky** integration — one command to wire it up
+- 📦 **Zero runtime dependencies**, ESM, TypeScript
+- 🎯 Conservative by design — tuned to minimize false positives
+- ⚡️ Reads the **staged blob**, so staging-then-editing can't sneak a secret past
 
-## 사용
+## Install
 
 ```bash
-envguard scan --staged   # 스테이지된 파일만 (pre-commit 훅에서 자동 실행)
-envguard scan            # 트래킹되는 전체 파일 (CI/수동)
+npm install -D commitguard husky
+npx commitguard init
 ```
 
-위반이 있으면 exit code 1로 커밋/CI를 막습니다. warning만 있으면 통과합니다.
+`init` does the following, idempotently (safe to re-run):
 
-## 탐지 규칙
+- Adds `npx commitguard scan --staged` to `.husky/pre-commit`
+- Adds `"prepare": "husky"` to `package.json` (so a fresh `npm install` after clone restores the hook)
+- Creates a default `.commitguardrc` in the project root (left untouched if it already exists)
 
-- `.env*` 파일 차단 (`.env.example` / `.sample` / `.template` 은 허용)
-- 코드 내 키 패턴: AWS, Google API, Stripe, JWT 등
-- 범용 high-entropy 문자열 (보수적)
-- `NEXT_PUBLIC_` 에 시크릿처럼 보이는 값 → **경고**(exit code 영향 없음)
-- 사용자 지정 `watch` 파일 차단
+## Usage
 
-## 설정 (`.envguardrc` 또는 package.json "envguard")
+```bash
+commitguard scan --staged   # staged files only (runs automatically in the pre-commit hook)
+commitguard scan            # all tracked files (CI / manual run)
+```
 
-우선순위: `.envguardrc` > `package.json`의 `"envguard"` 키 > 기본값.
+- Exits with **code 1** when an error-level violation is found, blocking the commit / CI.
+- Warnings alone do **not** block (exit code 0).
+- Exits with **code 2** when run outside a git repository.
+
+## What it detects
+
+| Rule | Severity | Notes |
+|------|----------|-------|
+| `.env*` files staged | error | `.env.example` / `.env.sample` / `.env.template` are allowed |
+| Known key patterns | error | AWS, Google API, Stripe, JWT, … |
+| Generic high-entropy strings | error | Conservative threshold to limit false positives |
+| `NEXT_PUBLIC_` with a secret-looking value | **warning** | Exposure may be intentional → never blocks the commit |
+| User-defined `watch` files | error | Files you mark as never-commit |
+
+Each finding is reported with **what / where / why it's risky / how to fix it**, and secret tokens are masked in the output.
+
+## Configuration
+
+commitGuard works with no config. To customize, use either a `.commitguardrc` file (pure JSON) **or** a `"commitguard"` key in `package.json`.
+
+Priority: **`.commitguardrc` > `package.json` `"commitguard"` key > built-in defaults.**
 
 ```json
 {
@@ -44,17 +63,19 @@ envguard scan            # 트래킹되는 전체 파일 (CI/수동)
 }
 ```
 
-| 키 | 설명 | 기본값 |
-|----|------|--------|
-| `watch` | 커밋 금지할 사용자 지정 파일 | `[]` |
-| `ignore` | 스캔 제외 경로/글롭 | `[".env.example", ".env.sample", ".env.template"]` |
-| `allowNextPublic` | true면 NEXT_PUBLIC_ 경고 끔 | `false` |
-| `entropyThreshold` | high-entropy 민감도(높일수록 둔감) | `4.0` |
+| Key | Description | Default |
+|-----|-------------|---------|
+| `watch` | Files that must never be committed | `[]` |
+| `ignore` | Paths / globs to exclude from scanning | `[".env.example", ".env.sample", ".env.template"]` |
+| `allowNextPublic` | `true` disables the `NEXT_PUBLIC_` warning | `false` |
+| `entropyThreshold` | High-entropy sensitivity (higher = less sensitive) | `4.0` |
 
-## CI 연동 (GitHub Actions)
+> Note on `ignore`: a bare filename (no slash, e.g. `secrets.ts`) matches that basename **anywhere** in the repo, while entries with a slash or glob (e.g. `src/vendor/*`) match by path.
+
+## CI (GitHub Actions)
 
 ```yaml
-name: envguard
+name: commitguard
 on: [push, pull_request]
 jobs:
   scan:
@@ -65,20 +86,27 @@ jobs:
       - uses: actions/setup-node@v4
         with: { node-version: 20 }
       - run: npm ci
-      - run: npx envguard scan
+      - run: npx commitguard scan
 ```
 
-## 이미 history에 올라간 시크릿
+## A secret already landed in history?
 
-`envguard`는 앞으로의 커밋을 막을 뿐 과거 기록은 지우지 않습니다. 이미 노출됐다면:
-1. 해당 키를 **즉시 폐기(rotate)** 하세요.
-2. `git filter-repo` 또는 BFG로 history에서 제거하세요.
+commitGuard blocks *future* commits — it does not rewrite past history. If a secret was already pushed:
 
-## 로컬 개발
+1. **Rotate the key immediately.** Treat it as compromised.
+2. Remove it from history with [`git filter-repo`](https://github.com/newren/git-filter-repo) or [BFG](https://rtyley.github.io/bfg-repo-cleaner/).
+
+## Local development
 
 ```bash
 npm install
 npm run build
-npm link          # 전역에 envguard 연결
-npm test
+npm link          # expose `commitguard` globally
+npm test          # 73 tests, node:test via tsx
 ```
+
+The codebase keeps a strict calculation/action split: detection rules are pure functions (`src/rules/*`), while git, filesystem, and console I/O are isolated in the action layer (`src/git.ts`, `src/commands/*`, `src/report.ts`). This makes every rule independently testable and false-positive tuning isolated per rule.
+
+## License
+
+MIT
